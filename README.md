@@ -10,13 +10,13 @@
 
   > 样本选择偏差问题。传统CVR的预估模型是在曝光和click的数据上训练，在inference的时候使用了整个样本空间，如图所示。训练样本和实际数据不服从同一分布，不符合机器学习中训练数据和测试数据独立同分布的假设。直观的说，会产生转化的用户不一定都是进行了点击操作的用户，如果只使用点击后的样本来训练，会导致CVR学习产生偏置。如图所示：
 
-  Img1
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/1.jpg)
 
 - **Data Sparsity，DS**
 
   > 数据稀疏问题。点击样本在整个样本空间中只占了很小一部分，而转化样本更少，高度稀疏的训练数据使得模型的学习变得相当困难。Table1显示了这个问题。
 
-  Img2
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/2.jpg)
 
 ## 解决方法
 
@@ -48,17 +48,17 @@
 
   > CTR表示点击率、CVR表示假设商品被点击后的转化率、CTCVR表示商品被点击并且成功转化。三者的关系如下：
 
-Img3
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/3.jpg)
 
 > 其中<a href="https://www.codecogs.com/eqnedit.php?latex=z" target="_blank"><img src="https://latex.codecogs.com/svg.latex?z" title="z" /></a>和<a href="https://www.codecogs.com/eqnedit.php?latex=y" target="_blank"><img src="https://latex.codecogs.com/svg.latex?y" title="y" /></a>分别表示conversion和click。
 >
 > 注意到，在全部样本空间中，CTR对应的label为click，而CTCVR对应的label为click & conversion，**这两个任务是都可以使用全部样本今夕预估**。**所以ESMM通过这学习两个任务，再根据上式隐式地学习CVR**，具体结构如下：
 
-Img4
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/4.jpg)
 
 > ESMM模型分为两个子模型，pCTR和pCVR：两者共享特征的embedding层，从concatenate之后各自学习参数；pCVR仅仅是网络中的一个variable，没有监督信号，只有pCTR和pCTCVR才有监督信号进行学习。ESMM的loss函数定义如下：
 
-img5
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/5.jpg)
 
 > 即采用CTR和CTCVR的监督信息来训练网络，隐地学习CVR。直观理解就是，只要ctr预估准确了，并且pCTCVR也预估准确了，因为pCTCVR = pCTR * pCVR，所以pCVR的预估也一定是准确的。
 
@@ -122,9 +122,9 @@ img5
 
 > ESMM模型表现出了最优的效果，其充分解决了SSB和DS的问题。在Product数据集上，各模型在不同抽样率上的AUC曲线如图所示，ESMM显示的稳定的优越性，曲线走势也说明了Data Sparsity的影响还是挺大的。
 
-Img
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/6.jpg)
 
-img
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/7.jpg)
 
 ## 讨论
 
