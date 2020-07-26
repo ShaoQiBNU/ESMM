@@ -130,3 +130,10 @@
 
 - ESMM 根据用户行为序列，显示引入CTR和CTCVR作为辅助任务，“隐式” 学习CVR，从而在完整样本空间下进行模型的训练和预测，解决了CVR预估中的2个难题。
 - 可以把 ESMM 看成一个**新颖的 MTL 框架**，其中子任务的网络结构是可替换的，当中有很大的想象空间。
+
+## 代码
+
+https://github.com/qiaoguan/deep-ctr-prediction
+
+
+
