@@ -48,13 +48,13 @@
 
   > CTR表示点击率、CVR表示假设商品被点击后的转化率、CTCVR表示商品被点击并且成功转化。三者的关系如下：
 
-![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/3.jpg)
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/4.jpg)
 
 > 其中<a href="https://www.codecogs.com/eqnedit.php?latex=z" target="_blank"><img src="https://latex.codecogs.com/svg.latex?z" title="z" /></a>和<a href="https://www.codecogs.com/eqnedit.php?latex=y" target="_blank"><img src="https://latex.codecogs.com/svg.latex?y" title="y" /></a>分别表示conversion和click。
 >
 > 注意到，在全部样本空间中，CTR对应的label为click，而CTCVR对应的label为click & conversion，**这两个任务是都可以使用全部样本今夕预估**。**所以ESMM通过这学习两个任务，再根据上式隐式地学习CVR**，具体结构如下：
 
-![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/4.jpg)
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/3.jpg)
 
 > ESMM模型分为两个子模型，pCTR和pCVR：两者共享特征的embedding层，从concatenate之后各自学习参数；pCVR仅仅是网络中的一个variable，没有监督信号，只有pCTR和pCTCVR才有监督信号进行学习。ESMM的loss函数定义如下：
 
