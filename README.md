@@ -1,6 +1,9 @@
 [TOC]
 
-# 阿里巴巴ESMM模型解读
+阿里巴巴ESMM模型系列解读
+============
+
+# ESMM模型
 
 ## 背景
 
@@ -52,7 +55,7 @@
 
 > 其中<a href="https://www.codecogs.com/eqnedit.php?latex=z" target="_blank"><img src="https://latex.codecogs.com/svg.latex?z" title="z" /></a>和<a href="https://www.codecogs.com/eqnedit.php?latex=y" target="_blank"><img src="https://latex.codecogs.com/svg.latex?y" title="y" /></a>分别表示conversion和click。
 >
-> 注意到，在全部样本空间中，CTR对应的label为click，而CTCVR对应的label为click & conversion，**这两个任务是都可以使用全部样本今夕预估**。**所以ESMM通过这学习两个任务，再根据上式隐式地学习CVR**，具体结构如下：
+> 注意到，在全部样本空间中，CTR对应的label为click，而CTCVR对应的label为click & conversion，**这两个任务是都可以使用全部样本进行预估**。**所以ESMM通过这学习两个任务，再根据上式隐式地学习CVR**，具体结构如下：
 
 ![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/3.jpg)
 
@@ -135,5 +138,106 @@
 
 https://github.com/qiaoguan/deep-ctr-prediction
 
+# ESM2模型
 
+## 背景
 
+> 虽然ESMM模型一定程度的消除了样本选择偏差，但对于CVR预估来说，ESMM模型仍面临一定的样本稀疏问题，因为click到buy的样本非常少。但其实一个用户在购买某个商品之前往往会有一些其他的行为，比如将商品加入购物车或者心愿单。如下所示：
+
+Img8
+
+> 加入心愿单／购物车的数据相较购买数据还是比较多的，因此可以基于这部分数据，通过多任务学习模型来求解CVR模型。文中把加入购物车或者心愿单此类行为称作Deterministic Action (DAction) ，而其他对购买相关性不是很大的行为称作Other Action(OAction) 。此时原来d的Impression→Click→Buy过程变成了更加丰富的Impression→Click→DAction/OAction→Buy过程。
+
+## 模型
+
+### 模型结构
+
+> ESM2模型结构如图所示，共有3层，SEM、DPM、SCM。
+>
+> - SEM是embedding共享层，主要将user、item以及user和item交互的sparse ID features和dense features进行embedding；
+> - DPM是全连接层，各个子任务分别训练
+> - SCM是最终的loss函数输出，预测对应的概率
+
+Img9
+
+> 图中共有4个任务Y1~Y4，意义如下：
+>
+> - Y1： 点击率
+> - Y2： 点击到 DAction 的概率
+> - Y3： DAction 到购买的概率
+> - Y4： OAction 到购买的概率
+>
+> 由于DAction和OAction是对立事件，所以从点击到OAction的概率和点击到 DAction 的概率求和为1。
+
+### 损失函数
+
+> 模型有3个loss函数，采用logloss，分别定义如下：
+>
+> - **pCTR**
+>
+>   Impression→Click的概率是第一个网络的输出。
+>
+> - **pCTAVR**
+>
+>   Impression→Click→DAction的概率，pCTAVR = Y1 * Y2，由前两个网络的输出结果相乘得到。
+>
+> - **pCTCVR**：
+>   Impression→Click→DAction/OAction→Buy的概率，
+>
+>   pCTCVR = CTR * CVR = Y1 * [(1 - Y2) * Y4 + Y2 * Y3]，由四个网络的输出共同得到。其中CVR=(1 - Y2) * Y4 + Y2 * Y3，因为从点击到DAction和点击到OAction是对立事件。
+
+Img10
+
+> 最终的损失函数由3部分加权得到：
+
+Img11
+
+> 在预测时，只需要经过后三个网络，便可以计算对应的CVR。
+
+## 实验设置
+
+> 文章对比了几个模型在CVR预估上的效果：
+>
+> - GBDT
+>
+> - DNN
+>
+>   使用Click→Buy的样本来训练CVR模型，使用Impression→Click的样本来训练CTR模型
+>
+> - DNN-OS
+>
+>   对Click→Buy的样本进行过采样，其他同DNN
+>
+> - ESMM
+>
+> - ESM2
+
+> 评估指标包括AUC和GAUC，GAUC是对每个用户的AUC进行加权的结果。结果表明：ESM2的表现最好。
+
+img12
+
+## Ablation studies
+
+> 此外，作者还在ESM2上做了Ablation studies，如下：
+
+- Hyper-parameters of deep neural network
+
+  主要包含dropout ratio，hidden layers数量，embeddings的dimension
+
+  img
+
+- Effectiveness of embedding dense numerical features
+
+  对于numerical features，通常的做法是离散化成one-hot特征，然后embedding。作者尝试了另外一种方式，先将feature归一化，然后采用Tanh来做embedding，最终得到了0.004的AUC收益。
+
+  img
+
+- Effectiveness of decomposing post-click behaviors
+
+  文中作者将post-click behaviors分为Scart和Wish，分别对比了only Scart、only Wish和both SCart and Wish的表现，the combination of both SCart and Wish achieves the best AUC scores. 
+
+  img
+
+## Performance analysis of user behaviors
+
+为了对比ESM2模型和ESSM模型的表现差异，作者根据user的购买次数将测试集划分为4组，[0, 10], [11, 20], [21, 50], [50, +)。对比来看，购买行为丰富的user组里，ESM2的AUC提升较大，主要原因在于，购买行为丰富的user，其post-click behaviors（Scart，Wish）也更加丰富。
