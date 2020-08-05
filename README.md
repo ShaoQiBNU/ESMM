@@ -144,7 +144,7 @@ https://github.com/qiaoguan/deep-ctr-prediction
 
 > 虽然ESMM模型一定程度的消除了样本选择偏差，但对于CVR预估来说，ESMM模型仍面临一定的样本稀疏问题，因为click到buy的样本非常少。但其实一个用户在购买某个商品之前往往会有一些其他的行为，比如将商品加入购物车或者心愿单。如下所示：
 
-Img8
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/8.jpg)
 
 > 加入心愿单／购物车的数据相较购买数据还是比较多的，因此可以基于这部分数据，通过多任务学习模型来求解CVR模型。文中把加入购物车或者心愿单此类行为称作Deterministic Action (DAction) ，而其他对购买相关性不是很大的行为称作Other Action(OAction) 。此时原来d的Impression→Click→Buy过程变成了更加丰富的Impression→Click→DAction/OAction→Buy过程。
 
@@ -158,7 +158,7 @@ Img8
 > - DPM是全连接层，各个子任务分别训练
 > - SCM是最终的loss函数输出，预测对应的概率
 
-Img9
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/9.jpg)
 
 > 图中共有4个任务Y1~Y4，意义如下：
 >
@@ -186,11 +186,11 @@ Img9
 >
 >   pCTCVR = CTR * CVR = Y1 * [(1 - Y2) * Y4 + Y2 * Y3]，由四个网络的输出共同得到。其中CVR=(1 - Y2) * Y4 + Y2 * Y3，因为从点击到DAction和点击到OAction是对立事件。
 
-Img10
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/10.jpg)
 
 > 最终的损失函数由3部分加权得到：
 
-Img11
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/11.jpg)
 
 > 在预测时，只需要经过后三个网络，便可以计算对应的CVR。
 
@@ -214,7 +214,7 @@ Img11
 
 > 评估指标包括AUC和GAUC，GAUC是对每个用户的AUC进行加权的结果。结果表明：ESM2的表现最好。
 
-img12
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/12.jpg)
 
 ## Ablation studies
 
@@ -224,20 +224,22 @@ img12
 
   主要包含dropout ratio，hidden layers数量，embeddings的dimension
 
-  img
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/13.jpg)
 
 - Effectiveness of embedding dense numerical features
 
   对于numerical features，通常的做法是离散化成one-hot特征，然后embedding。作者尝试了另外一种方式，先将feature归一化，然后采用Tanh来做embedding，最终得到了0.004的AUC收益。
 
-  img
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/14.jpg)
 
 - Effectiveness of decomposing post-click behaviors
 
   文中作者将post-click behaviors分为Scart和Wish，分别对比了only Scart、only Wish和both SCart and Wish的表现，the combination of both SCart and Wish achieves the best AUC scores. 
 
-  img
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/15.jpg)
 
 ## Performance analysis of user behaviors
 
 为了对比ESM2模型和ESSM模型的表现差异，作者根据user的购买次数将测试集划分为4组，[0, 10], [11, 20], [21, 50], [50, +)。对比来看，购买行为丰富的user组里，ESM2的AUC提升较大，主要原因在于，购买行为丰富的user，其post-click behaviors（Scart，Wish）也更加丰富。
+
+![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/16.jpg)
