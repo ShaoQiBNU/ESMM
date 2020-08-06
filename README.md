@@ -146,7 +146,7 @@ https://github.com/qiaoguan/deep-ctr-prediction
 
 ![image](https://github.com/ShaoQiBNU/ESMM/blob/master/img/8.jpg)
 
-> 加入心愿单／购物车的数据相较购买数据还是比较多的，因此可以基于这部分数据，通过多任务学习模型来求解CVR模型。文中把加入购物车或者心愿单此类行为称作Deterministic Action (DAction) ，而其他对购买相关性不是很大的行为称作Other Action(OAction) 。此时原来d的Impression→Click→Buy过程变成了更加丰富的Impression→Click→DAction/OAction→Buy过程。
+> 加入心愿单／购物车的数据相较购买数据还是比较多的，因此可以基于这部分数据，通过多任务学习模型来求解CVR模型。文中把加入购物车或者心愿单此类行为称作Deterministic Action (DAction) ，而其他对购买相关性不是很大的行为称作Other Action(OAction) 。此时原来的Impression→Click→Buy过程变成了更加丰富的Impression→Click→DAction/OAction→Buy过程。
 
 ## 模型
 
